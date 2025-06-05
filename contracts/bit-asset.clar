@@ -103,3 +103,92 @@
   }
   { vote-amount: uint }
 )
+
+;; Dividend claim tracker - Records dividend claims for each user per asset
+(define-map dividend-claims
+  {
+    asset-id: uint,
+    claimer: principal,
+  }
+  { last-claimed-amount: uint }
+)
+
+;; Oracle price feeds - Provides external price data for assets
+(define-map price-feeds
+  { asset-id: uint }
+  {
+    price: uint,
+    decimals: uint,
+    last-updated: uint,
+    oracle: principal,
+  }
+)
+
+;; Input Validation Functions
+
+;; Validates that an asset value is within acceptable range
+(define-private (validate-asset-value (value uint))
+  (and
+    (>= value MIN-ASSET-VALUE)
+    (<= value MAX-ASSET-VALUE)
+  )
+)
+
+;; Validates that a proposal duration is within acceptable range
+(define-private (validate-duration (duration uint))
+  (and
+    (>= duration MIN-DURATION)
+    (<= duration MAX-DURATION)
+  )
+)
+
+;; Validates that a KYC level is within acceptable range
+(define-private (validate-kyc-level (level uint))
+  (<= level MAX-KYC-LEVEL)
+)
+
+;; Validates that an expiry date is within acceptable range
+(define-private (validate-expiry (expiry uint))
+  (and
+    (> expiry stacks-block-height)
+    (<= (- expiry stacks-block-height) MAX-EXPIRY)
+  )
+)
+
+;; Validates that minimum votes for a proposal is within acceptable range
+(define-private (validate-minimum-votes (vote-count uint))
+  (and
+    (> vote-count u0)
+    (<= vote-count tokens-per-asset)
+  )
+)
+
+;; Validates that a metadata URI is properly formatted
+(define-private (validate-metadata-uri (uri (string-ascii 256)))
+  (and
+    (> (len uri) u0)
+    (<= (len uri) u256)
+  )
+)
+
+;; Helper Functions
+
+;; Returns the next available asset ID
+(define-private (get-next-asset-id)
+  (default-to u1 (get-last-asset-id))
+)
+
+;; Returns the next available proposal ID
+(define-private (get-next-proposal-id)
+  (default-to u1 (get-last-proposal-id))
+)
+
+;; Returns the last asset ID (to be implemented)
+(define-private (get-last-asset-id)
+  none
+)
+
+;; Returns the last proposal ID (to be implemented)
+(define-private (get-last-proposal-id)
+  none
+)
